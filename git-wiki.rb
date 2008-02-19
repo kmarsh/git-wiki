@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-%w(rubygems sinatra grit maruku rubypants haml).each do |a_gem| 
+%w(rubygems sinatra grit redcloth haml).each do |a_gem| 
   begin
     require a_gem
   rescue LoadError => e
@@ -40,7 +40,7 @@ class Page
     pages = $repo.commits.first.tree.contents.map { |blob| Page.new(blob.name) }
     
     # mostly taken from JunebugWiki, regexps this beautiful should be shared
-    raw_body.gsub(/\[\[([\w0-9A-Za-z -]+)[|]?([^\]]*)\]\]/) do
+    body.gsub(/\[\[([\w0-9A-Za-z -]+)[|]?([^\]]*)\]\]/) do
       page = title = $1.strip
       title = $2 unless $2.empty?
       page_url = page.gsub(/ /, '_')
@@ -55,7 +55,7 @@ class Page
   end
 
   def body
-    @body ||= Maruku.new(RubyPants.new(raw_body).to_html).to_html
+    @body ||= RedCloth.new(raw_body, []).to_html
   end
 
   def raw_body
@@ -125,7 +125,7 @@ end
 
 def show
   layout(@page.title, %q(
-      %a{:href => '/e/' + @page.name, :class => 'edit_link', :accesskey => 'e'} edit this page
+      %a{:href => '/e/' + @page.name, :class => 'edit', :accesskey => 'e'} Edit
     %h1{:class => 'page_title'}= @page.title
     #page_content= @page.display_body
   ))
@@ -154,4 +154,3 @@ def list
       %ul= @pages.each(&:to_s)
   })
 end
-
