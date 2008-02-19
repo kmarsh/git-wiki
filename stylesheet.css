@@ -45,3 +45,7 @@ a.edit, a.edit:visited, a.edit:active, a.edit:hover {
 }
 .cancel:before { content: "("; }
 .cancel:after { content: ")" }
+
+input, textarea, pre, code {
+  font-family: monospace;
+}

@@ -136,12 +136,13 @@ def edit
     %h1
       Editing
       = @page.title
-      %a{:href => 'javascript:history.back()', :class => 'cancel'} Cancel
     %form{ :method => 'POST', :action => '/e/' + params[:page]}
       %p
-        ~"<textarea name='body' rows='25' cols='130'>#{@page.raw_body}</textarea>"
+        ~"<textarea name='body' rows='25' cols='80'>#{@page.raw_body}</textarea>"
       %p
         %input{:type => :submit, :value => 'Save as the newest version', :class => :submit}
+        or
+        %a{:href => 'javascript:history.back()', :class => 'cancel'} Cancel
   ))
 end
 
