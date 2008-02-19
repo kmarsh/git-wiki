@@ -27,6 +27,32 @@ class Page
     @name = name
     @filename = File.join(GIT_REPO, @name)
   end
+  
+  # The name with _'s replaced with spaces
+  def title
+    name.gsub(/_/, ' ')
+  end
+
+  # A derivation of body, which is actually displayed when showing a page.
+  # It has stuff like [[links]] resolved as HTML links or placeholders if the
+  # linked to page does not already exist
+  def display_body
+    pages = $repo.commits.first.tree.contents.map { |blob| Page.new(blob.name) }
+    
+    # mostly taken from JunebugWiki, regexps this beautiful should be shared
+    raw_body.gsub(/\[\[([\w0-9A-Za-z -]+)[|]?([^\]]*)\]\]/) do
+      page = title = $1.strip
+      title = $2 unless $2.empty?
+      page_url = page.gsub(/ /, '_')
+
+      if pages.map(&:name).include?(page_url)
+        %Q{<a href="/#{page_url}">#{title}</a>}
+      else
+        %Q{<span>#{title}<a href="/e/#{page_url}">?</a></span>}
+      end
+    end
+    
+  end
 
   def body
     @body ||= Maruku.new(RubyPants.new(raw_body).to_html).to_html
@@ -98,18 +124,18 @@ def layout(title, content)
 end
 
 def show
-  layout(@page.name, %q(
+  layout(@page.title, %q(
       %a{:href => '/e/' + @page.name, :class => 'edit_link', :accesskey => 'e'} edit this page
-    %h1{:class => 'page_title'}= @page.name
-    #page_content= @page.body
+    %h1{:class => 'page_title'}= @page.title
+    #page_content= @page.display_body
   ))
 end
 
 def edit
-  layout("Editing #{@page.name}", %q(
+  layout("Editing #{@page.title}", %q(
     %h1
       Editing
-      = @page.name
+      = @page.title
       %a{:href => 'javascript:history.back()', :class => 'cancel'} Cancel
     %form{ :method => 'POST', :action => '/e/' + params[:page]}
       %p
