@@ -99,7 +99,7 @@ end
 
 def show
   layout(@page.name, %q(
-      %a{:href => '/e/' + @page.name, :class => 'edit_link'} edit this page
+      %a{:href => '/e/' + @page.name, :class => 'edit_link', :accesskey => 'e'} edit this page
     %h1{:class => 'page_title'}= @page.name
     #page_content= @page.body
   ))
