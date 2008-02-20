@@ -62,6 +62,10 @@ class Page
     @raw_body ||= File.exists?(@filename) ? File.read(@filename) : ''
   end
 
+  def destroy!
+    `cd #{GIT_REPO} && git rm #{@name} && git commit -m "Destroyed #{@name}"`
+  end
+  
   def body=(content)
     File.open(@filename, 'w') { |f| f << content }
     message = tracked? ? "Edited #{@name}" : "Created #{@name}"
@@ -74,7 +78,7 @@ class Page
   end
 
   def to_s
-    "<li><strong><a href='/#{@name}'>#{@name}</a></strong> — <a href='/e/#{@name}'>edit</a></li>"
+    "<li><strong><a href='/#{@name}'>#{@name}</a></strong> — <a href='/e/#{@name}'>edit</a> - <a href='/d/#{@name}'>destroy</a></li>"
   end
 end
 
@@ -107,6 +111,18 @@ post '/e/:page' do
   redirect '/' + @page.name
 end
 
+get '/d/:page' do
+  @page = Page.new(params[:page])
+  haml(destroy)
+end
+
+post '/d/:page' do
+  @page = Page.new(params[:page])
+  @page.destroy!
+  
+  redirect '/' + HOMEPAGE
+end
+
 def layout(title, content)
   %Q(
 %html
@@ -128,6 +144,19 @@ def show
       %a{:href => '/e/' + @page.name, :class => 'edit', :accesskey => 'e'} Edit
     %h1{:class => 'page_title'}= @page.title
     #page_content= @page.display_body
+  ))
+end
+
+def destroy
+  layout("Delete #{@page.title}?", %q(
+    %h1
+      Delete
+      = @page.title
+      ?
+    %p Are you sure you want to delete this page?
+    %form{ :method => 'POST', :action => '/d/' + params[:page]}
+      %p
+        %input{:type => :submit, :value => 'Yes, delete', :class => :submit}
   ))
 end
 
