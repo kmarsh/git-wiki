@@ -14,9 +14,9 @@ unless ARGV[0] && File.readable?(ARGV[0])
   exit 1
 end
 
-# TODO: Pull in historical pages, too, from junebug_page_versions. Will have to
-# figure out how to 'backdate' commits, which must be possible because SVN import
-# stuff does it. This will suffice for now.
+# TODO: Pull in historical pages from junebug_page_versions. git-fast-import
+# looks perfect for this:
+#   http://www.kernel.org/pub/software/scm/git/docs/git-fast-import.html
 db = SQLite3::Database.new(ARGV[0])
 db.execute("SELECT title, body FROM junebug_pages") do |row|
   title, body = *row
