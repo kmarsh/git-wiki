@@ -31,7 +31,7 @@ a { color: black }
   font-weight: bold;
 }
 
-.page_title { font-size: xx-large; } 
+.page_title { font-size: x-large; } 
 
 a.edit, a.edit:visited, a.edit:active, a.edit:hover {
   color: red;
